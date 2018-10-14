@@ -1,3 +1,5 @@
+Select an Installation -> Pick your Networking and Storage -> Select your Service Mesh and Ingress -> CI/CD -> Provision your Apps -> Secure your Installation -> Test your Installation -> Add monitoring -> Performance test and Autoscale -> Developer Experience -> Use cases
+
 ## Table of Contents
 
 * Introduction
@@ -8,43 +10,52 @@
   * Cloud comparison
   * On-Prem comparison
   * Hybrid and multi-cloud
-* Chapter 3: Deploying your applications
+* Chapter 3: Choosing your networking
+  * Overview
+  * Networking comparison
+* Chapter 4: Choosing your storage
+  * Overview
+  * Storage comparison
+* Chapter 5: Choosing your service mesh
+  * Overview
+  * Service mesh comparison
+* Chapter 6: Choosing your ingress
+  * Overview
+  * Ingress comparison
+* Chapter 7: Deploying your applications
   * CI/CD Comparison
   * Simple pipelines
   * Advanced pipelines with Spinnaker
   * Helm charts
-* Chapter 4: Networking
-  * Overview
-  * Networking comparison
-* Chapter 5: Storage
-  * Overview
-  * Storage comparison
-* Chapter 6: Service mesh
-  * Overview
-  * Service mesh comparison
-* Chapter 7: Security
+* Chapter 8: Security
   * Overview
   * Base image comparison
   * Container vulnerability scanning
   * Static analysis
   * Dynamic analysis
   * Helm chart scanning
-* Chapter 8: Monitoring
-  * Custom time series
-  * Logging
-  * Tracing
 * Chapter 9: Testing
   * Benchmarking a cluster
   * Chaos engineering
-* Chapter 10: Developer Experience
+* Chapter 10: Monitoring
+  * Custom time series
+  * Logging
+  * Tracing
+* Chapter 11: Backup and restore
+  * Overview
+  * Backup tool comparison
+* Chapter 12: Improve your developer experience
   * Serverless
   * Teleport
   * Remote debuggers
   * Syncing
-* Chapter 11: Best practices and Patterns
-* Chapter 13: Use Cases
+* Chapter 13: Best practices and Patterns
+  * GitOps
+  * Operator pattern
+* Chapter 14: Use cases
   * Blockchain
   * Big Data
   * Artificial Intelligence
   * IoT
   
+
