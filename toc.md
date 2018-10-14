@@ -1,5 +1,3 @@
-Select an Installation -> Pick your Networking and Storage -> Select your Service Mesh and Ingress -> CI/CD -> Provision your Apps -> Secure your Installation -> Test your Installation -> Add monitoring -> Performance test and Autoscale -> Developer Experience -> Use cases
-
 ## Table of Contents
 
 * Introduction
