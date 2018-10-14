@@ -42,12 +42,12 @@
 * Chapter 11: Backup and restore
   * Overview
   * Backup tool comparison
-* Chapter 12: Improve your developer experience
+* Chapter 12: Developer experience
   * Serverless
   * Teleport
   * Remote debuggers
   * Syncing
-* Chapter 13: Best practices and Patterns
+* Chapter 13: Patterns
   * GitOps
   * Operator pattern
 * Chapter 14: Use cases
