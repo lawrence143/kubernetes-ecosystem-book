@@ -3,6 +3,7 @@
 * Introduction
 * Chapter 1: Thinking ahead
   * Cloud native applications
+  * CNCF landscape
   * Where will Kubernetes be in 5 years
 * Chapter 2: Choosing a platform
   * Cloud comparison
