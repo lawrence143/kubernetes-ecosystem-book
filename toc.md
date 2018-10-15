@@ -15,6 +15,7 @@
 * Chapter 4: Choosing your storage
   * Overview
   * Storage comparison
+  * Stateful services
 * Chapter 5: Choosing your service mesh
   * Overview
   * Service mesh comparison
