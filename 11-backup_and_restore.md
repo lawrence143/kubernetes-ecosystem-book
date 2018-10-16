@@ -27,8 +27,8 @@ It configures with underlying cloud provider easily and can also  take snapshots
 
 If you have stateful applications, ark can be the first  take backups.
 
-## 1.1 Ark - How to take a backup
+### 1.1 Ark - How to take a backup
 
-## 1.2 Ark - How to restore from a backup
+### 1.2 Ark - How to restore from a backup
 
 ## 2. 
