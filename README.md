@@ -12,7 +12,7 @@
 * [Chapter 7: Deploying your applications](07-deploying_your_applications.md)
 * [Chapter 8: Securing](08-security.md)
 * [Chapter 9: Testing](09-testing.md)
-* [Chapter 10: Monitoring](10-monitoring.md)
+* [Chapter 10: Observability](10-observability.md)
 * [Chapter 11: Backup and restore](11-backup_and_restore.md)
 * [Chapter 12: Developer experience](12-developer_experience.md)
 * [Chapter 13: Patterns](13-patterns.md)
