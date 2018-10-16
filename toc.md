@@ -37,7 +37,7 @@
 * Chapter 9: Testing
   * Benchmarking a cluster
   * Chaos engineering
-* Chapter 10: Monitoring
+* Chapter 10: Observability
   * Custom time series
   * Logging
   * Tracing
