@@ -1,8 +1,8 @@
-#CI/CD Comparison
+# CI/CD Comparison
 
-#Simple pipelines
+# Simple pipelines
 
-#Advanced pipelines with Spinnaker
+# Advanced pipelines with Spinnaker
 
-#Helm charts
+# Helm charts
 
