@@ -1,15 +1,15 @@
 Introduction
-Chapter 1: Thinking ahead | tbc
-Chapter 2: Choosing a platform | tbc
-Chapter 3: Choosing your networking | tbc
+Chapter 1: Thinking ahead | Pethuru Raj
+Chapter 2: Choosing a platform | Lawrence Manickam
+Chapter 3: Choosing your networking | Luis Castro
 Chapter 4: Choosing your storage | Luis Castro, Adriano Pezzuto
-Chapter 5: Choosing your service mesh | tbc
+Chapter 5: Choosing your service mesh | Pethuru Raj
 Chapter 6: Choosing your ingress | tbc
-Chapter 7: Deploying your applications | Sandeep Lamba
+Chapter 7: Deploying your applications | Sandeep Lamba, Lawrence Manickam
 Chapter 8: Securing | Niko Penteridis
 Chapter 9: Testing | Niko Penteridis
 Chapter 10: Observability | Niko Penteridis
-Chapter 11: Backup and restore | tbc
+Chapter 11: Backup and restore | Sandeep Lamba
 Chapter 12: Developer experience | Steven Acreman
-Chapter 13: Patterns | Adriano Pezzuto
-Chapter 14: Use cases | tbc
+Chapter 13: Patterns | Adriano Pezzuto, Lawrence Manickam
+Chapter 14: Use cases | Pethuru Raj
