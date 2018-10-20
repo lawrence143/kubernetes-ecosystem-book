@@ -4,53 +4,56 @@
       # Feel free to review. Any comment will be appreciated.
       # Thanks.
 
-# Baseline Patterns
+# Kuberentes Design Patterns
 
-## Declarative patterns
+## Baseline Patterns
+
+### Declarative patterns
 
 - Update strategy
 - Blue/Green strategy
 - Canary strategy
 
-## Behavorial patterns
+### Behavorial patterns
 
 - Batch Jobs
 - Scheduled Jobs
 - Services
 
-## Observability patterns
+### Observability patterns
 
 - Container Healt Check
 - Liveness Probe
 - Readiness Probe
 
-## Life Cycle Conformance patterns
+### Life Cycle Conformance patterns
 
 - Pod temination
 - Life cycle hooks: post-start and pre-stop
 
-## Structure Patterns
+### Structure Patterns
 
 - Sidecar
 - Initializer
 - Ambassador
 - Adapter
 
-## Configuration Patterns
+### Configuration Patterns
 
 - Environment variables
-- Configuration
+- Config Maps
+- Secrets
 
-# Advanced patterns
+## Advanced patterns
 
-## Kubernetes extension points
+### Kubernetes extension points
 
 - Services Catalog
 - APIs aggregation server
 - Custom Resources Definition
 - Custom Controllers
 
-## Operator pattern
+### Operator pattern
 
 - Platform as Code
 - Operator framework
