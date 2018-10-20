@@ -1,5 +1,8 @@
 
-      [adriano] In this section we're going to cover the design patterns principles and the related available tools currently available from the ecosystem. Feel free to review. Any comment will be appreciated. Thanks.
+      [adriano] In this section we're going to cover the design patterns principles and
+      # the related available tools currently available from the ecosystem.
+      # Feel free to review. Any comment will be appreciated.
+      # Thanks.
 
 # Baseline Patterns
 
