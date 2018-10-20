@@ -5,6 +5,17 @@
       # Thanks.
 
 # Kuberentes Design Patterns
+ * [Baseline Patterns](#baseline-patterns)
+      * [Declarative patterns](#declarative-patterns)
+      * [Behavorial patterns](#behavorial-patterns)
+      * [Observability patterns](#observability-patterns)
+      * [Life Cycle Conformance patterns](#life-cycle-conformance-patterns)
+      * [Structure Patterns](#structure-patterns)
+      * [Configuration Patterns](#configuration-patterns)
+ * [Advanced patterns](#advanced-patterns)
+      * [Kubernetes extension points](#kubernetes-extension-points)
+      * [COperator pattern](#operator-patterns)
+
 
 ## Baseline Patterns
 
