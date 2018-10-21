@@ -1,5 +1,5 @@
 
-Microservices, Containers, Kubernetes and Multi-Cloud
+<b> Microservices, Containers, Kubernetes and Multi-Cloud</b> 
 
 Having understood the strategically sound advantages of the fast-emerging and evolving multi-cloud paradigm, worldwide enterprises are increasingly embracing the multi-cloud strategy for their business automation and acceleration. However, there are a few key constraints as far as employing multiple cloud environments for hosting and managing enterprise, cloud, web, mobile, and embedded applications. There are a few noteworthy innovations, disruptions and transformations in the cloud space. There is a bevy of automated tools being produced and released in order to simplify and streamline the multi-cloud adoption. Interestingly, with the emergence of microservices architecture (MSA), Docker-enabled containerization, and container orchestration platforms such as Kubernetes, the multi-cloud adoption gets speeded up remarkably across industries. 
 
