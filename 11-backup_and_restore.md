@@ -168,10 +168,50 @@ Ark works in client-server approach and it can run in Cloud or on-prem both. Com
 This is the easiest part.
 
 Install the [Ark-Client](https://github.com/heptio/ark/releases) directly as pre-compiled library as per the environment.
-
-Install the server side custom resource definitions as mentioned below or [in this repo](https://github.com/heptio/ark/tree/master/examples).
+And put the client in your PATH environment variable.
 
 #### 1.2.2 Ark-Server Installation
+
+Ark server side installation comprised of CRD's which are present at github repo https://github.com/heptio/ark/tree/master/examples/common
+
+By default, CRD's will be created in namespace **heptio-ark**. But namespace is configurable. Alongwith CRDS, a namespace, service-account and ClusterRoleBinding resources will also be created.
+
+There is support for restic configurations also from ark version 0.9.0.
+
+Change the details as per needs and install the ark CRDs.
+
+```
+[ark@k8s] $ kubectl apply -f https://raw.githubusercontent.com/heptio/ark/master/examples/common/00-prereqs.yaml
+[ark@k8s] $ kubectl apply -f 00-prereqs.yaml
+customresourcedefinition.apiextensions.k8s.io "backups.ark.heptio.com" created
+customresourcedefinition.apiextensions.k8s.io "schedules.ark.heptio.com" created
+customresourcedefinition.apiextensions.k8s.io "restores.ark.heptio.com" created
+customresourcedefinition.apiextensions.k8s.io "configs.ark.heptio.com" created
+customresourcedefinition.apiextensions.k8s.io "downloadrequests.ark.heptio.com" created
+customresourcedefinition.apiextensions.k8s.io "deletebackuprequests.ark.heptio.com" created
+customresourcedefinition.apiextensions.k8s.io "podvolumebackups.ark.heptio.com" created
+customresourcedefinition.apiextensions.k8s.io "podvolumerestores.ark.heptio.com" created
+customresourcedefinition.apiextensions.k8s.io "resticrepositories.ark.heptio.com" created
+customresourcedefinition.apiextensions.k8s.io "backupstoragelocations.ark.heptio.com" created
+namespace "heptio-ark" created
+serviceaccount "ark" created
+clusterrolebinding.rbac.authorization.k8s.io "ark" created
+```
+
+```
+[ark@k8s] $ kubectl get crd -o go-template='{{range .items}}{{if eq .spec.group "ark.heptio.com"}}{{.metadata.name}}{{"\n"}}{{end}}{{end}}'
+backups.ark.heptio.com
+backupstoragelocations.ark.heptio.com
+configs.ark.heptio.com
+deletebackuprequests.ark.heptio.com
+downloadrequests.ark.heptio.com
+podvolumebackups.ark.heptio.com
+podvolumerestores.ark.heptio.com
+resticrepositories.ark.heptio.com
+restores.ark.heptio.com
+schedules.ark.heptio.com
+```
+
 
 ### 1.3 Ark AWS Setup
 
