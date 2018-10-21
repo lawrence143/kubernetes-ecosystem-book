@@ -1,3 +1,8 @@
+* [Overview](#Overview)
+* [Backup tool comparison](#Backup tool comparison)
+      * [Ark](#1.Ark)
+        * [Ark Installation](#1.1-Ark-Installation)
+
 **The art of knowing is knowing what to ignore.**
 
 # Overview
@@ -19,7 +24,7 @@ Below are the main reasons to take backup/restore
 
 # Backup tool comparison
 
-## 1. Ark
+## 1.Ark
 
 Heptio Ark is a utility for managing disaster recovery, specifically for your Kubernetes cluster resources and persistent volumes.
 
@@ -27,7 +32,7 @@ It configures with underlying cloud provider easily and can also  take snapshots
 
 If you have stateful applications, ark can be the first  take backups.
 
-### 1.1 Ark - Installation
+### 1.1-Ark-Installation
 
 Ark works in client-server approach.
 
