@@ -33,7 +33,9 @@ Usage of the tool(s) changes as the strategy of taking backup changes. The setup
 
 ## 1.Ark
 
-Ark is a tool from Heptio and is a utility for managing disaster recovery of your Kubernetes Clusters, specifically  cluster resources and persistent volumes. It configures with underlying cloud provider easily and can also  take snapshots of persistent volumes. If you have stateful applications, Ark should be in the list to take backups.
+Ark is a tool from Heptio and is a utility for managing disaster recovery of your Kubernetes Clusters, specifically  cluster resources and persistent volumes. It configures with underlying cloud provider easily and can also  take snapshots of persistent volumes. If you have stateful applications, Ark should be in the list to take backups. 
+
+Ark can back up or restore all objects in the cluster, and can also filter objects by type, namespace, and/or label. Ark is ideal for the disaster recovery use case, as well as for snapshotting application state, before performing system operations on your cluster (e.g. upgrades).
 
 Ark have below capabilites:
 
@@ -65,10 +67,42 @@ Below is the list of Ark Snapshot providers
 | Google Compute Engine Disks      | Ark             |
 | Restic                           | Ark             |
 | [Portworx][1]                    | Portworx        |
-| [DigitalOcean][2]               | StackPointCloud |
+| [DigitalOcean][2]                | StackPointCloud |
 
 
 ### 1.1 Ark Architecture
+
+Ark tool consists of custom-resources like backup,restore, schedules and defined in Kubernetes as Custom-Resource-Definitions(CRD) and then stored in etcd.
+
+Some of the CRD's are 
+
+1. Config
+2. Backup
+3. Restore
+4. Schedule
+
+Config CRD provides core information and options such for cloud provider settings.
+Schedule CRD allows to back up data at recurring intervals.
+Backup CRD allows to take backup with help of BackupController.
+Restore CRD allows to restore all of the objects and persistent volumes from a previously created backup.
+
+<p align="center">
+  <img src="img/ark.svg" width="585"> </image>
+</p>
+
+
+The backup operation:
+
+Uploads a tarball of copied Kubernetes objects into cloud object storage.
+
+Calls the cloud provider API to make disk snapshots of persistent volumes, if specified.
+
+You can optionally specify hooks to be executed during the backup. For example, you might need to tell a database to flush its in-memory buffers to disk before taking a snapshot. More about hooks.
+
+Note that cluster backups are not strictly atomic. If Kubernetes objects are being created or edited at the time of backup, they might not be included in the backup. The odds of capturing inconsistent information are low, but it is possible.
+
+
+
 
 ### 1.2 Ark Installation
 
