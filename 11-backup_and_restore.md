@@ -1,5 +1,5 @@
 * [Overview](#Overview)
-* [Backup tool comparison](#Backup tool comparison)
+* [Backup tool comparison](#Backup-tool-comparison)
   * [Ark](#1.Ark)
   * [Ark Installation](#1.1-Ark-Installation)
 
@@ -22,7 +22,7 @@ Below are the main reasons to take backup/restore
 * To replicate clusters
 * To migrate clusters
 
-# Backup tool comparison
+# Backup-tool-comparison
 
 ## 1.Ark
 
