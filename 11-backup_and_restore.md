@@ -23,7 +23,7 @@
       * [Ark Azure Configuration](#151-ark-azure-configuration)
       * [Ark Azure Backup](#152-ark-azure-backup)
       * [Ark Azure Restore](#153-ark-azure-restore)
-  [etcd](#2-etcd)
+  * [etcd](#2-etcd)
 
 **The art of knowing is, knowing what to ignore.**
 
