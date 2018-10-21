@@ -3,7 +3,7 @@
   * [Ark](#1ark)
   * [Ark Installation](#11-ark-installation)
 
-**The art of knowing is knowing what to ignore.**
+**The art of knowing is, knowing what to ignore.**
 
 # Overview
 
@@ -22,16 +22,18 @@ Below are the main reasons to take backup/restore
 * To replicate clusters
 * To migrate clusters
 
+We can take Kubernetes DB backup which is etcd or we can take Kubernetes Cluster resources backup in the form of YAML files.
+
 # Backup-tools
 
 There are many tools in market and few of them are listed below.
 
-Usage of the tool(s) changes as the strategy of taking backup changes. The setup will be different depending on  underlying cloud provider such as AWS, GCE, Azure etc. We will cover 3 main Cloud providers setup of Ark tool.
+Usage of the tool(s) changes as the strategy of taking backup changes. The setup will be different depending on  underlying cloud provider such as AWS, GCP, Azure etc. We will cover 3 main Cloud providers setup of Ark tool.
 
 
 ## 1.Ark
 
-Ark is tool from Heptio and is a utility for managing disaster recovery of your Kubernetes Clusters, specifically  cluster resources and persistent volumes. It configures with underlying cloud provider easily and can also  take snapshots of persistent volumes. If you have stateful applications, Ark should be in the list to take backups.
+Ark is a tool from Heptio and is a utility for managing disaster recovery of your Kubernetes Clusters, specifically  cluster resources and persistent volumes. It configures with underlying cloud provider easily and can also  take snapshots of persistent volumes. If you have stateful applications, Ark should be in the list to take backups.
 
 Ark have below capabilites:
 
@@ -44,7 +46,7 @@ Ark have typical client-server setup and have 2 components:
 * A server containing Customr-Rsource-Definitions(CRD's) that runs on the server.
 * A command-line client that runs locally.
 
-Ark can run in clusters on a cloud or on-prem clusters. It supports many storage providers for backups and snapshot operations. After adding a plugin system in version 0.6.0, users can create their won plugins to add further complexity and logic in order to be compatible with additional backups and volume storage platforms without modifying the Ark codebase.
+Ark can run in clusters on a cloud or on-prem clusters. It supports many storage providers for backups and snapshot operations. After adding a plugin system in version 0.6.0, users can create their own plugins to add further complexity and logic in order to be compatible with additional backups and volume storage platforms without modifying the Ark codebase.
 
 Below are the Storage Providers supported by Ark officially.
 
@@ -54,24 +56,57 @@ Below are the Storage Providers supported by Ark officially.
 | Azure Blob Storage        | Ark      |
 | Google Cloud Storage      | Ark      |
 
-For Ark uses Amazon's Go SDK to connect to the S3 API. Some third-party storage providers also support the S3 API, and users have reported the following providers work with Ark:
+Below is the list of Ark Snapshot providers
 
-Note that these providers are not regularly tested by the Ark team.
+| Provider                         | Owner           |
+|----------------------------------|-----------------|
+| AWS EBS                          | Ark             |
+| Azure Managed Disks              | Ark             |
+| Google Compute Engine Disks      | Ark             |
+| Restic                           | Ark             |
+| [Portworx](1)                    | Portworx        |
+| [DigitalOcean](2)                | StackPointCloud |
 
-IBM Cloud
-Minio
-Ceph RADOS v12.2.7
-DigitalOcean
 
-### 1.1-Ark-Installation
+### 1.1 Ark Architecture
 
-Ark works in client-server approach.
+### 1.2 Ark Installation
+
+Ark works in client-server approach and it can run in Cloud or on-prem both. Compatible Storage providers are listed above.
+
+#### 1.2.1 Ark-Client Installation
+
+This is the easiest part.
 
 Install the [Ark-Client](https://github.com/heptio/ark/releases).
 
 Install the server side custom resource definitions as mentioned below or [in this repo](https://github.com/heptio/ark/tree/master/examples).
 
-### 1.2 Ark - How to take a backup
+#### 1.2.2 Ark-Server Installation
+
+### 1.3 Ark AWS Setup
+
+#### 1.3.1 Ark AWS Configuration
+
+#### 1.3.2 Ark AWS Backup
+
+#### 1.3.3 Ark AWS Restore
+
+### 1.4 Ark GCP Setup
+
+#### 1.4.1 Ark GCP Configuration
+
+#### 1.4.2 Ark GCP Backup
+
+#### 1.4.3 Ark GCP Restore
+
+### 1.5 Ark Azure Setup
+
+#### 1.5.1 Ark Azure Configuration
+
+#### 1.5.2 Ark Azure Backup
+
+#### 1.5.3 Ark Azure Restore
 
 *Pre-requisites*
 
@@ -98,4 +133,8 @@ For storing data in AWS S3 bucket.
 
 ### 1.3 Ark - How to restore from a backup
 
-## 2. 
+## 2. etcd
+
+
+[1]: https://docs.portworx.com/scheduler/kubernetes/ark.html
+[2]: https://github.com/StackPointCloud/ark-plugin-digitalocean
