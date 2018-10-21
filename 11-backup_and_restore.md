@@ -64,8 +64,8 @@ Below is the list of Ark Snapshot providers
 | Azure Managed Disks              | Ark             |
 | Google Compute Engine Disks      | Ark             |
 | Restic                           | Ark             |
-| [Portworx](1)                    | Portworx        |
-| [DigitalOcean](2)                | StackPointCloud |
+| [Portworx][1]                    | Portworx        |
+| [DigitalOcean][2]               | StackPointCloud |
 
 
 ### 1.1 Ark Architecture
