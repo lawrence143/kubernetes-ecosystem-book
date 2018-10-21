@@ -1,7 +1,7 @@
 **[WIP]**
 
 * [Overview](#Overview)
-* [Backup Tool](#backup-tools)
+* [Backup in Kubernetes](#backup-tools)
   * [Ark](#1ark)
     * [Ark Architecture](#11-ark-architecture)
       * [Ark Backup Workflow](#111-ark-backup-workflow)
@@ -23,6 +23,7 @@
       * [Ark Azure Configuration](#151-ark-azure-configuration)
       * [Ark Azure Backup](#152-ark-azure-backup)
       * [Ark Azure Restore](#153-ark-azure-restore)
+  [etcd](#2-etcd)
 
 **The art of knowing is, knowing what to ignore.**
 
