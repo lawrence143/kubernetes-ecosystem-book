@@ -1,4 +1,4 @@
-[WIP]
+**[WIP]**
 
 * [Overview](#Overview)
 * [Backup tool comparison](#backup-tool-comparison)
