@@ -88,11 +88,6 @@ Schedule CRD allows to back up data at recurring intervals.
 Backup CRD allows to take backup with help of BackupController.
 Restore CRD allows to restore all of the objects and persistent volumes from a previously created backup.
 
-<p align="center">
-  <img src="img/ark.svg" width="585"> </image>
-</p>
-
-
 During a backup operation:
 
 1. Ark created a tarball of all resources and uploads the Kubernetes objects into cloud object storage.
@@ -102,7 +97,47 @@ Hooks can also be executed during the backup process. Hooks can work pre and pos
 
 Point to note here is that Ark backups are not strictly atomic. In cases where Kubernetes objects are being created or edited at the time of backup, those objects/resources might not be included in the backup. Though such odds are pretty low, but quite possible in very active clusters.
 
+#### 1.1.1 Ark Backup Workflow
 
+Architecture is shown below. Backup Contoller is created while creating the Ark Server side component using CRDs. We will see this part in the installation section.
+
+<p align="center">
+  <img src="img/ark.svg" width="585"> </image>
+</p>
+
+Flow of events during backup process:
+
+1. Ark client sends a call to the Kubernetes API server to create a Backup object.
+2. Ark Server component BackupController notices creation of new Backup object and performs validation.
+3. BackupController begins backup process and collects the data to backup by querying the API server for resources.
+4. BackupController makes a call to the object storage service – e.g, AWS S3 – to upload the backup file.
+
+By default, ark backup create makes disk snapshots of any persistent volumes. You can adjust the snapshots by specifying additional flags. See the CLI help for more information. Snapshots can be disabled with the option --snapshot-volumes=false.
+
+#### 1.1.2 Ark Scheduled Backups
+
+We can scedule a backup using a cron and backup can be created at a specified time. Scheduled backups are saved with the name <SCHEDULE NAME>-<TIMESTAMP>, where <TIMESTAMP> is formatted as YYYYMMDDhhmmss.
+
+During creation of backup, we can specify a TTL by adding the flag --ttl <DURATION>. If Ark sees that an existing backup resource is expired, it removes:
+
+1. The backup resource
+2. The backup file from cloud object storage
+3. All PersistentVolume snapshots
+4. All associated Restores
+
+#### 1.1.3 Ark Backup Restores
+
+Restore operation will restore all objects and persistent volumes from a previously created backup. We can also restore only a filtered subset of objects and persistent volumes.
+
+The default name of a restore is <BACKUP NAME>-<TIMESTAMP>, where <TIMESTAMP> is formatted as YYYYMMDDhhmmss. Custom name can also be given to backups. A restored object also includes a label with key ark-restore and value <RESTORE NAME>.
+
+Ark can also be run in restore-only mode, which then disables backup, schedule, and garbage collection functionalities during disaster recovery.
+
+#### 1.1.4 Ark Sync
+
+Ark treats target object storage as the source of truth. It checks continuouslyif the correct backup resources are always present. If there is a properly formatted backup file in the storage bucket, but no corresponding backup resource in the Kubernetes API, Ark synchronizes the information from object storage to Kubernetes.
+
+This allows restore functionality to work in a cluster migration scenario, where the original backup objects do not exist in the new cluster.
 
 ### 1.2 Ark Installation
 
@@ -112,7 +147,7 @@ Ark works in client-server approach and it can run in Cloud or on-prem both. Com
 
 This is the easiest part.
 
-Install the [Ark-Client](https://github.com/heptio/ark/releases).
+Install the [Ark-Client](https://github.com/heptio/ark/releases) directly as pre-compiled library as per the environment.
 
 Install the server side custom resource definitions as mentioned below or [in this repo](https://github.com/heptio/ark/tree/master/examples).
 
