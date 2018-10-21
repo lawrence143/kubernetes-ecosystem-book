@@ -1,3 +1,5 @@
+[WIP]
+
 * [Overview](#Overview)
 * [Backup tool comparison](#backup-tool-comparison)
   * [Ark](#1ark)
@@ -91,16 +93,14 @@ Restore CRD allows to restore all of the objects and persistent volumes from a p
 </p>
 
 
-The backup operation:
+During a backup operation:
 
-Uploads a tarball of copied Kubernetes objects into cloud object storage.
+1. Ark created a tarball of all resources and uploads the Kubernetes objects into cloud object storage.
+2. Ark calls the cloud provider API to make disk snapshots of persistent volumes, if specified.
 
-Calls the cloud provider API to make disk snapshots of persistent volumes, if specified.
+Hooks can also be executed during the backup process. Hooks can work pre and post backups and can do certain tasks before and after taking backups. For example, we might need to tell database to flush in-memory buffers of disk before taking a snapshot. We will take one example of hooks below.
 
-You can optionally specify hooks to be executed during the backup. For example, you might need to tell a database to flush its in-memory buffers to disk before taking a snapshot. More about hooks.
-
-Note that cluster backups are not strictly atomic. If Kubernetes objects are being created or edited at the time of backup, they might not be included in the backup. The odds of capturing inconsistent information are low, but it is possible.
-
+Point to note here is that Ark backups are not strictly atomic. In cases where Kubernetes objects are being created or edited at the time of backup, those objects/resources might not be included in the backup. Though such odds are pretty low, but quite possible in very active clusters.
 
 
 
