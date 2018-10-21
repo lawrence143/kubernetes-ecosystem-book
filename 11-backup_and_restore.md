@@ -1,9 +1,28 @@
 **[WIP]**
 
 * [Overview](#Overview)
-* [Backup tool comparison](#backup-tool-comparison)
+* [Backup Tool](#backup-tools)
   * [Ark](#1ark)
-  * [Ark Installation](#11-ark-installation)
+    * [Ark Architecture](#11-ark-architecture)
+      * [Ark Backup Workflow](#111-ark-backup-workflow)
+      * [Ark Scheduled Backups](#112-ark-scheduled-backups)
+      * [Ark Restores](#113-ark-backup-restores)
+      * [Ark-Sync](#114-ark-sync)
+    * [Ark Installation](#12-ark-installation)
+      * [Ark Client](#121-ark-client-installation)
+      * [Ark Server](#122-ark-server-installation)
+    * [Ark AWS Setup](#12-ark-installation)
+      * [Ark AWS Configuration](#131-ark-aws-configuration)
+      * [Ark AWS Backup](#132-ark-aws-backup)
+      * [Ark AWS Restore](#133-ark-aws-restore)
+    * [Ark GCP Setup](#12-ark-installation)
+      * [Ark GCP Configuration](#141-ark-gcp-configuration)
+      * [Ark GCP Backup](#142-ark-gcp-backup)
+      * [Ark GCP Restore](#143-ark-gcp-restore)
+    * [Ark Azure Setup](#12-ark-installation)
+      * [Ark Azure Configuration](#151-ark-azure-configuration)
+      * [Ark Azure Backup](#152-ark-azure-backup)
+      * [Ark Azure Restore](#153-ark-azure-restore)
 
 **The art of knowing is, knowing what to ignore.**
 
