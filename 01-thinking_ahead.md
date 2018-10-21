@@ -15,7 +15,7 @@ The faster maturity and stability of digital technologies (Cloud computing, data
 
 When these three categories of enabled systems (digitized objects, connected devices and software services) interact with one another in a purpose-driven manner, there will be a staggering amount of multi-structured data (alternatively termed as big data) getting generated. The challenge here is how to collect, cleanse, crunch the big data quickly to discover and disseminate knowledge. However, with the availability of integrated data analytics platforms,  a litany of pioneering machine and deep learning algorithms, and other knowledge discovery methods, data sets are subjected to a variety of investigations and this highly complicated process can lead to actionable insights, which can be looped back to devices, systems, and applications to exhibit a kind of adaptivity, agility, autonomy and adroitness in their operations, offerings and outputs. 
 
-Software-defined Cloud Environments for the Digital Era
+<b>Software-defined Cloud Environments for the Digital Era</b>
 
 The arrival of cloud concepts has brought in remarkable changes in the IT deployment model that in turn has led in realizing big transitions in the delivery of business applications and services. The cloud paradigm results in the sagacious enhancement of business flexibility, productivity, and sustainability. Formally cloud infrastructures are consolidated, centralized, containerized, virtualized, automated, and shared IT infrastructures. The utilization rate of cloud IT infrastructures is going up steadily. Still, there are dependencies curtailing the full usage of expensive IT resources. The ways and means for realizing the enhanced usage include employing the decoupling technique among various IT assets. This decoupling ultimately assists for decimating all kinds of constricting dependencies. Further on, attaining more intensive and insightful process excellence through optimization, integration, orchestration and policy-based configuration, operation, management, delivery, and maintenance is being insisted. By attaching external knowledge bases is another option to make IT resources adaptive, agile and affordable. Precisely speaking all kinds of IT operations have to be algorithmically automated. IT infrastructure provisioning, application configuration and deployment, IT service management, cyber security, etc. are being automated through a variety of path-breaking technologies and tools. Thus, a stream of pioneering software solutions is being brought in to realize programmable IT infrastructures.  
 
@@ -28,7 +28,7 @@ The software-defined infrastructures (SDI) paradigm is the future for IT to set 
 •	The Commoditization of Storage Appliances – Similar to the commoditization of networking components, all kinds of storage solutions are being commoditized by adding an abstraction layer above the storage appliances and arrays. 
 Software-defined cloud infrastructures are programmable, highly utilizable, sustainable, and affordable. Cloud environments (public and private) are increasingly software-defined. Formation of hybrid clouds is getting simplified through a host of advancements in the cloud space. Cloud-to-cloud (C2C) integration is picking up fast through automated solutions. That is, geographically distributed cloud environments are being integrated in an ad hoc manner in on-demand manner based on the varying demands. 
 
-Demystifying the Hybrid IT Era
+<b>Demystifying the Hybrid IT Era</b>
 
 Hybrid cloud is an on-demand combination of on-premises (private cloud) and public cloud services to bring forth an exemplary value for businesses. The hybrid IT is the most influential and important moment for worldwide businesses in order to guarantee enhanced value for their customers, consumers, partners, employees, etc. The hybrid environment provides customers with all the flexibility and extensibility to select and consume the most appropriate service offering for specific workloads based on several critical factors such as cost, security, network latency, controllability, visibility and performance. For example, a customer may choose a public cloud service to test and develop a new application and then move that workload to a private cloud or traditional IT environment when the application becomes operational. Enterprises that need to support a variety of workloads can leverage the flexibility of a hybrid cloud approach to ensure they have the ability to scale up and scale down as needed. The emerging hybrid capability through a bevy of automated tools is a blessing in disguise for worldwide enterprises to meet up the fast-evolving business sentiments.
 The Key Drivers for Hybrid Clouds
@@ -51,7 +51,7 @@ A hybrid cloud typically offers the following features:
 
 Hybrid clouds succulently empower enterprises to innovate rapidly while fulfilling the enterprise-grade performance, resiliency and security requirements. 
 
-The Hybrid Cloud Benefits
+<b> The Hybrid Cloud Benefits </b>
 
 Hybrid cloud ensures the widely articulated enterprise IT needs by immaculately combining the control and reliability of private cloud with the scalability, consumability, observability, and cost-efficiency of public clouds. Leveraging hybrid cloud environments enables you to run every workload in its appropriate place at optimal cost. 
 
@@ -97,7 +97,7 @@ The future noticeably beckons and reckons for hybrid clouds. The cloud journey t
 
 In the recent past, there are edge / fog device clouds emerging and evolving fast with the conscious adoption of edge / fog computing paradigms. That is, multi-faceted devices are being meticulously clubbed together to form powerful and pioneering device clouds to attend environment-specific and time-sensitive tasks. On the other hand, there are massive public clouds by various providers to meet their clients’ computing, networking and storage needs. Thus the cloud evolution and revolution are definitely and decisively amazing. The next innovation, disruption and transformation in this mesmerizing journey is to form and leverage hybrid clouds comprising edge, private and public clouds. Many kinds of distributed cloud environments are to be connected with one another to achieve bigger and better things for the IT, which is invariably mandated to do more with less. However, the formation and sustenance of hybrid clouds is beset with a number of business, technical and user challenges and concerns. 
 
-Demystifying Microservices Architecture (MSA)
+<b>Demystifying Microservices Architecture (MSA)</b>
 
 Lately, microservices architecture is gaining a lot of mind and market shares. Monolithic and massive applications are being continuously dismantled to be a pool of easily manageable and composable microservices. Application development and maintenance (ADM) service providers know the perpetual difficulties of  building and sustain legacy applications, which are closed, inflexible, and expensive. The low utilization and reuse are other drawbacks. Enabling them to be web, mobile and cloud-ready is beset with a number of practical challenges. Modernizing and migrating legacy applications to embrace newer technologies and to run them in optimized IT environments consume a lot of time, talent and treasure. Software development takes the agile route to bring forth business value in the shortest possible time. Software delivery and deployment are getting equally speeded up through the DevOps concept, which is being facilitated through a host of powerful automation tools and techniques. Now the software solution design also has to be accelerated in a risk-free fashion. Here comes the microservices architecture style and pattern. 
 
@@ -109,7 +109,7 @@ In spite of all those top claims, microservices architecture is simplistically a
  
 . 
 
-Delineating the Containerization Paradigm
+<b>Delineating the Containerization Paradigm</b>
 
 Containers emerge as the efficient runtime and resource for cloud applications (both cloud-enabled and native). Containers are comparatively lightweight and hence hundreds of containers can be made to run in a physical or virtual machine. There are other technical benefits such as horizontal scalability, portability, etc. Containers almost guarantee the performance of physical machines. Near-time scalability is seeing the reality with the faster maturity and stability of the enigmatic containerization paradigm. The tool ecosystem of containerization movement is growing rapidly and hence containers are being positioned as the perfect way forward to attain the originally envisaged benefits of cloudification. 
 
@@ -137,15 +137,15 @@ Containers are extremely lightweight. One application/process/service can be pac
 
 Containerization, without an iota of doubt, is being prescribed as the strategically sound tool for resolving most of the ills plaguing cloud environments. We have discussed the containerization phenomenon and the faster proliferation of microservices as the highly optimized application building-block and the deployment unit. Now there is a greater interest in converging these two strategically sound concepts. The combination is going to be disruptive, innovative and transformative for business enterprises. The enterprise and cloud IT divisions are going to be the most constructive and contributive as the promising convergence of microservices and containerization is to open up hitherto unknown and unheard possibilities and fresh opportunities for business and IT domains.
 
-The Emergence of Containerized Cloud Environments
+<b>The Emergence of Containerized Cloud Environments</b>
 
 
-The Technical Challenges of Containerized Cloud Environments
+<b>The Technical Challenges of Containerized Cloud Environments</b>
 
  
 
 
-Decoding the growing Role of Kubernetes for the Container Era
+<b>Decoding the growing Role of Kubernetes for the Container Era</b>
 
 Kubernetes is a portable and extensible opensource platform for managing containerized workloads. Kubernetes automates the end-to-end container lifecycle management activities.  Configuration requirements are aptly declared and a host of automation modules of the Kubernetes platform are working together in realizing the desired state. Having understood the strategic importance of Kubernetes-like cluster and orchestration platforms in effectively and efficiently running containers in cloud environments, the tool ecosystem grows fast. Containers, being the favourite runtime to host and execute microservices, are turning out to be the most tuned resource for the cloud era. For automating the container creation, running, dismantling, stopping, replacing, replicating, etc., the contributions of container cluster and orchestration platform are growing great. 
 
@@ -168,7 +168,7 @@ Containers are efficient in the sense that more works can be performed with less
 
 
 
-Conclusion
+<b>Conclusion</b>
 
 The digitization technologies and tools are becoming pervasive and persuasive. Nations across the globe are competing with one another in observing and absorbing the digitization processes, platforms, patterns, products, practices, and procedures in order to be smartly sensitive and really responsive to their constituents. All kinds of business establishments and corporates are eagerly strategizing to be elegantly digitized in their operations, offerings, and outputs. Human societies are being made aware of the significant impacts of digitization technologies. IT organizations are equally keen on bringing forth an arsenal of digitization-enablement solutions and services. Academic institutions, innovators and individuals are overwhelmingly convinced about the tactic as well as strategic implications of digitization. The awareness and articulation of digitization movement is definitely on the climb with the enhanced understanding of the business, technical and user benefits of digitization technologies such as cloud computing, data analytics (big, real-time, streaming, and IoT), enterprise mobility, web 2.0 (social web) and web 3.0 (semantic web), artificial intelligence (AI), microservices architecture, etc.  
 
