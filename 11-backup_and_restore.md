@@ -1,7 +1,7 @@
 * [Overview](#Overview)
-* [Backup tool comparison](#Backup-tool-comparison)
-  * [Ark](#1.Ark)
-  * [Ark Installation](#1.1-Ark-Installation)
+* [Backup tool comparison](#backup-tool-comparison)
+  * [Ark](#1ark)
+  * [Ark Installation](#11-ark-installation)
 
 **The art of knowing is knowing what to ignore.**
 
