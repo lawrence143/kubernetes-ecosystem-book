@@ -170,15 +170,30 @@ This is the easiest part.
 Install the [Ark-Client](https://github.com/heptio/ark/releases) directly as pre-compiled library as per the environment.
 And put the client in your PATH environment variable.
 
+You can run the `ark` command to check the client version.
+
+```
+[ark@k8s] $ which ark
+/usr/local/bin/ark
+[ark@k8s] $
+[ark@k8s] $ ark version
+Version: v0.9.6
+Git commit: v0.9.6
+Git tree state: clean
+[ark@k8s] $ 
+```
+
+If you are able to run above command, you have successfully installed the ark client.
+
 #### 1.2.2 Ark-Server Installation
 
-Ark server side installation comprised of CRD's which are present at github repo https://github.com/heptio/ark/tree/master/examples/common
+Ark server side installation comprised of CRD's which are present at  [ark-github-repo] (https://github.com/heptio/ark/tree/master/examples/common)
 
-By default, CRD's will be created in namespace **heptio-ark**. But namespace is configurable. Alongwith CRDS, a namespace, service-account and ClusterRoleBinding resources will also be created.
+By default, CRD's will be created in namespace **heptio-ark**. But namespace is configurable. Alongwith CRDs, a namespace, service-account and ClusterRoleBinding resources will also be created.
 
-There is support for restic configurations also from ark version 0.9.0.
+There is support for [restic][3] configurations also from ark version 0.9.0.
 
-Change the details as per needs and install the ark CRDs.
+Change the namespace name, ClusterRoleBindings configuration or Service Acccount details for custom installation. Default installation is straight forward. Below is an example for default installation.
 
 ```
 [ark@k8s] $ kubectl apply -f https://raw.githubusercontent.com/heptio/ark/master/examples/common/00-prereqs.yaml
@@ -198,6 +213,8 @@ serviceaccount "ark" created
 clusterrolebinding.rbac.authorization.k8s.io "ark" created
 ```
 
+As the Ark CRD's are created as above. You can check the CRD resources created using below command.
+
 ```
 [ark@k8s] $ kubectl get crd -o go-template='{{range .items}}{{if eq .spec.group "ark.heptio.com"}}{{.metadata.name}}{{"\n"}}{{end}}{{end}}'
 backups.ark.heptio.com
@@ -212,10 +229,48 @@ restores.ark.heptio.com
 schedules.ark.heptio.com
 ```
 
+If you see all the resources above, Ark server side coponent is installed properly.
+
+With both Ark client and server components installed, let's setup the storage in different cloud vendors to store the backups. We will conver AWS in next section. 
 
 ### 1.3 Ark AWS Setup
 
+To do the setup for Ark in AWS, we need to do the follwing steps. 
+
+1. Create S3 Bucket in chosen resion.
+2. Create AWS IAM user/role/policies for Ark.
+3. Configure Ark CRD resource name Config with details from point 1 and 2.
+4. Create Kubernetes Secrete resource for user credentials or configure [Kube2iam][4]
+
+Note: The best practices to keep secrets in Kubernetes can be seen in Security Chapter. We highly recommend to read that chapter and use the tricks here in the examples below.
+
 #### 1.3.1 Ark AWS Configuration
+
+Lets perform the above 4 tasks.
+
+##### 1.3.1.1 Create AWS S3 Bucket
+
+Ark needs a storage to store the backups. S3 is object based storage in AWS and best choice to store backups for Kubernetes cluster resources.
+
+```
+[ark@k8s] $ aws s3api create-bucket --bucket heptio-ark-kubernetes-demo --region us-east-1
+{
+    "Location": "/heptio-ark-kubernetes-demo"
+}
+[ark@k8s] $ 
+[ark@k8s] $ aws s3 ls
+2018-10-22 23:53:06 heptio-ark-kubernetes-demo
+2018-06-12 15:06:41 elasticbeanstalk-eu-west-2-136335740207
+018-10-11 21:13:08 spinnakerforpractice-us-east-1
+[ark@k8s] $ 
+[ark@k8s] $ aws s3 ls s3://heptio-ark-kubernetes-demo
+[ark@k8s] $ 
+```
+
+##### 1.3.1.2 Create AWS IAM User
+
+This step is divided in 4 parts and we will perform them one by one.
+
 
 #### 1.3.2 Ark AWS Backup
 
@@ -267,3 +322,5 @@ For storing data in AWS S3 bucket.
 
 [1]: https://docs.portworx.com/scheduler/kubernetes/ark.html
 [2]: https://github.com/StackPointCloud/ark-plugin-digitalocean
+[3]: https://restic.net/
+[4]: https://github.com/jtblin/kube2iam
