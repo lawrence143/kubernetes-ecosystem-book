@@ -187,7 +187,7 @@ If you are able to run above command, you have successfully installed the ark cl
 
 #### 1.2.2 Ark-Server Installation
 
-Ark server side installation comprised of CRD's which are present at  [ark-github-repo] (https://github.com/heptio/ark/tree/master/examples/common)
+Ark server side installation comprised of CRD's which are present at [ark-github-repo](https://github.com/heptio/ark/tree/master/examples/common)
 
 By default, CRD's will be created in namespace **heptio-ark**. But namespace is configurable. Alongwith CRDs, a namespace, service-account and ClusterRoleBinding resources will also be created.
 
@@ -229,9 +229,9 @@ restores.ark.heptio.com
 schedules.ark.heptio.com
 ```
 
-If you see all the resources above, Ark server side coponent is installed properly.
+If you see all the resources above, Ark server side component is installed properly.
 
-With both Ark client and server components installed, let's setup the storage in different cloud vendors to store the backups. We will conver AWS in next section. 
+With both Ark client and server components installed, let's setup the storage in different cloud vendors to store the backups.
 
 ### 1.3 Ark AWS Setup
 
@@ -271,6 +271,174 @@ Ark needs a storage to store the backups. S3 is object based storage in AWS and 
 
 This step is divided in 4 parts and we will perform them one by one.
 
+1. Create Ark User
+
+```
+[ark@k8s] $ aws iam create-user --user-name heptio-ark
+{
+    "User": {
+        "UserName": "heptio-ark",
+        "Path": "/",
+        "CreateDate": "2018-10-22T22:15:34Z",
+        "UserId": "AAAAAAAAAAAAAAAAAAAAA",
+        "Arn": "arn:aws:iam::xxxxxxxxxxxx:user/heptio-ark"
+    }
+}
+[ark@k8s] $ 
+[ark@k8s] $ 
+[ark@k8s] $ aws iam list-users | jq -r '.Users[] | select(.UserName=="heptio-ark")'
+{
+  "UserName": "heptio-ark",
+  "Path": "/",
+  "CreateDate": "2018-10-22T22:15:34Z",
+  "UserId": "AAAAAAAAAAAAAAAAAAAAA",
+  "Arn": "arn:aws:iam::xxxxxxxxxxxx:user/heptio-ark"
+}
+[ark@k8s] $
+[ark@k8s] $  
+```
+
+2. Attach Policy to Ark user
+
+The ark user needs permissions to get, put, delete, abort and list multipart-uploads on S3.
+And also to describe,create tags,volumes and snapshots and to delete snapshots on EC2.
+
+The policy document will like below.
+
+```
+[ark@k8s] $ cat heptio-ark-user-policy.json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ec2:DescribeVolumes",
+                "ec2:DescribeSnapshots",
+                "ec2:CreateTags",
+                "ec2:CreateVolume",
+                "ec2:CreateSnapshot",
+                "ec2:DeleteSnapshot"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:GetObject",
+                "s3:DeleteObject",
+                "s3:PutObject",
+                "s3:AbortMultipartUpload",
+                "s3:ListMultipartUploadParts"
+            ],
+            "Resource": [
+                "arn:aws:s3:::heptio-ark-kubernetes-demo/*"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:ListBucket"
+            ],
+            "Resource": [
+                "arn:aws:s3:::heptio-ark-kubernetes-demo"
+            ]
+        }
+    ]
+}
+```
+
+Make sure the arn for s3 bucket i.e. **arn:aws:s3:::heptio-ark-kubernetes-demo** is correct.
+**heptio-ark-kubernetes-demo** is S3 bucket, we created in step-1.
+
+We now need to apply this policy to our user.
+
+```
+[ark@k8s] $ aws iam put-user-policy --user-name heptio-ark --policy-name heptio-ark --policy-document file://heptio-ark-user-policy.json
+[ark@k8s] $ aws iam get-user-policy --policy-name heptio-ark  --user-name heptio-ark
+{
+    "UserName": "heptio-ark",
+    "PolicyName": "heptio-ark",
+    "PolicyDocument": {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Action": [
+                    "ec2:DescribeVolumes",
+                    "ec2:DescribeSnapshots",
+                    "ec2:CreateTags",
+                    "ec2:CreateVolume",
+                    "ec2:CreateSnapshot",
+                    "ec2:DeleteSnapshot"
+                ],
+                "Resource": "*",
+                "Effect": "Allow"
+            },
+            {
+                "Action": [
+                    "s3:GetObject",
+                    "s3:DeleteObject",
+                    "s3:PutObject",
+                    "s3:AbortMultipartUpload",
+                    "s3:ListMultipartUploadParts"
+                ],
+                "Resource": [
+                    "arn:aws:s3:::heptio-ark-kubernetes-demo/*"
+                ],
+                "Effect": "Allow"
+            },
+            {
+                "Action": [
+                    "s3:ListBucket"
+                ],
+                "Resource": [
+                    "arn:aws:s3:::heptio-ark-kubernetes-demo"
+                ],
+                "Effect": "Allow"
+            }
+        ]
+    }
+}
+```
+
+3. Create Keys for user.
+
+```
+[ark@k8s] $ aws iam create-access-key --user-name heptio-ark
+{
+    "AccessKey": {
+        "UserName": "heptio-ark",
+        "Status": "Active",
+        "CreateDate": "2018-10-22T23:17:36Z",
+        "SecretAccessKey": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxcx",
+        "AccessKeyId": "yyyyyyyyyyyyyyyyyyyyyyy"
+    }
+}
+[ark@k8s] $ aws iam list-access-keys --user-name heptio-ark
+{
+    "AccessKeyMetadata": [
+        {
+            "UserName": "heptio-ark",
+            "Status": "Active",
+            "CreateDate": "2018-10-22T23:17:36Z",
+            "AccessKeyId": "AKIAJUY5QTZGUOQ3IH6Q"
+        }
+    ]
+}
+```
+
+4. Create AWS Credentials for user
+
+Create the aws specfic credentials file. We will create Kubernetes secret resource of this file.
+
+```
+[ark@k8s] $ cat heptio-ark-credentials
+[default]
+ aws_access_key_id=yyyyyyyyyyyyyyyyyyyyyyy
+ aws_secret_access_key=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxcx
+```
+
+where the access key id and secret are the values returned from the step 3.
 
 #### 1.3.2 Ark AWS Backup
 
