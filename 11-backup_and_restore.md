@@ -435,12 +435,174 @@ Create the aws specfic credentials file. We will create Kubernetes secret resour
 [ark@k8s] $ cat heptio-ark-credentials
 [default]
  aws_access_key_id=yyyyyyyyyyyyyyyyyyyyyyy
- aws_secret_access_key=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxcx
+ aws_secret_access_key=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
 where the access key id and secret are the values returned from the step 3.
 
+
+##### 1.3.1.2 Create Credentials and configuration
+
+As we already created the CRD's, last step we need to do is to create the secret and then configure AWS Deployment file with correct details
+
+Creating the secrets for aws is straight-forward
+
+```
+[ark@k8s] $ kubectl create secret generic cloud-credentials --namespace heptio-ark --from-file heptio-ark-credentials -o yaml --dry-run
+apiVersion: v1
+data:
+  heptio-ark-credentials: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxnNnRnJGWlV1ZE9xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxnhVpCg==
+kind: Secret
+metadata:
+  creationTimestamp: null
+  name: cloud-credentials
+  namespace: heptio-ark
+[ark@k8s] $ 
+[ark@k8s] $ kubectl create secret generic cloud-credentials --namespace heptio-ark --from-file heptio-ark-credentials
+secret "cloud-credentials" creat
+[ark@k8s] $ 
+[ark@k8s] $ kubectl get secrets cloud-credentials --namespace heptio-ark
+NAME              TYPE      DATA      AGE
+cloud-credentials   Opaque    1         1m
+```
+
+Now change the Correct Bucket and Region name in the ark config crd and create it.
+
+```
+[ark@k8s] $ curl -s https://raw.githubusercontent.com/heptio/ark/master/examples/aws/05-ark-backupstoragelocation.yaml -o 05-ark-backupstoragelocation.yaml
+[ark@k8s] $ sed -i '' 's/<YOUR_BUCKET>/heptio-ark-kubernetes-demo/g' 05-ark-backupstoragelocation.yaml
+[ark@k8s] $ sed -i '' 's/<YOUR_REGION>/us-east-1/g' 05-ark-backupstoragelocation.yaml
+[ark@k8s] $ cat 05-ark-backupstoragelocation.yaml
+---
+apiVersion: ark.heptio.com/v1
+kind: BackupStorageLocation
+metadata:
+  name: default
+  namespace: heptio-ark
+spec:
+  provider: aws
+  objectStorage:
+    bucket: heptio-ark-kubernetes-demo
+  config:
+    region: us-east-1
+[ark@k8s] $ 
+[ark@k8s] $ kubectl  apply -f 05-ark-backupstoragelocation.yaml
+backupstoragelocation.ark.heptio.com "default" created
+[ark@k8s] $ kubectl get BackupStorageLocation
+NAME      AGE
+default   13s
+```
+
+Last step is to get the Deploymenet Resource and create it.
+
+```
+[ark@k8s] $ curl -s https://raw.githubusercontent.com/heptio/ark/master/examples/aws/10-deployment.yaml -o 10-deployment.yaml
+[ark@k8s] $ kubectl apply -f 10-deployment.yaml
+deployment.apps "ark" created
+[ark@k8s] $
+[ark@k8s] $ kubectl get deployments --namespace heptio-ark
+NAME      DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+ark       1         1         1            1           29s
+[ark@k8s] $
+[ark@k8s] $ kubectl get pods
+NAME                   READY     STATUS    RESTARTS   AGE
+ark-5d4bcbdcb7-jvnr2   1/1       Running   0          2m
+```
+
+And thats it, our Ark configuration is done.
+Now time to use it.
+
 #### 1.3.2 Ark AWS Backup
+
+To start the backup, lets create a dummy deployment and take a backup of it. 
+```
+[ark@k8s] $ kubectl run dummy-nginx-deployment --image=nginx --port 80 --labels=app=nginx,ver=0.1 --namespace heptio-ark --expose=true --port 80
+service "dummy-nginx-deployment" created
+deployment.apps "dummy-nginx-deployment" created
+[ark@k8s] $ 
+[ark@k8s] $ kubectl get deployments,pods,services
+NAME                                           DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+deployment.extensions/ark                      1         1         1            1           8m
+deployment.extensions/dummy-nginx-deployment   1         1         1            1           48s
+
+NAME                                          READY     STATUS    RESTARTS   AGE
+pod/ark-5d4bcbdcb7-jvnr2                      1/1       Running   0          8m
+pod/dummy-nginx-deployment-54b584546f-sk722   1/1       Running   0          48s
+
+NAME                             TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
+service/dummy-nginx-deployment   ClusterIP   172.20.103.43   <none>        80/TCP    48s
+
+```
+
+Dummy resource is created, so lets take a backup.
+But before running ark command, lets check if there is something in my bucket.
+
+```
+[ark@k8s] $ aws s3 ls s3://heptio-ark-kubernetes-demo
+[ark@k8s] $ 
+```
+There are no resources in the bucket. Lets create a backup.
+
+```
+[ark@k8s] $ ark create backup dummy-nginx-backup --selector app=nginx
+Backup request "dummy-nginx-backup" submitted successfully.
+Run `ark backup describe dummy-nginx-backup` for more details.
+
+[ark@k8s] $  ark backup describe dummy-nginx-backup
+Name:         dummy-nginx-backup
+Namespace:    heptio-ark
+Labels:       <none>
+Annotations:  <none>
+
+Phase:  Completed
+
+Namespaces:
+  Included:  *
+  Excluded:  <none>
+
+Resources:
+  Included:        *
+  Excluded:        <none>
+  Cluster-scoped:  auto
+
+Label selector:  app=nginx
+
+Snapshot PVs:  auto
+
+TTL:  720h0m0s
+
+Hooks:  <none>
+
+Backup Format Version:  1
+
+Started:    2018-10-26 12:00:23 +0200 CEST
+Completed:  2018-10-26 12:00:31 +0200 CEST
+
+Expiration:  2018-11-25 11:00:23 +0100 CET
+
+Validation errors:  <none>
+
+Persistent Volumes: <none included>
+```
+
+```
+[ark@k8s] $ aws s3 ls s3://heptio-ark-kubernetes-demo
+                           PRE dummy-nginx-backup/
+2018-10-26 10:32:53        816 05-ark-backupstoragelocation.yaml
+[ark@k8s] $ 
+```
+
+So far so good. We can create the backup and our backup is present in the S3 bucket. We can list the backup as below.
+
+```
+[ark@k8s] $ ark get backups
+NAME                  STATUS      CREATED                          EXPIRES   SELECTOR
+dummy-nginx-backup3   Deleting    2018-10-26 10:41:56 +0200 CEST   29d       app=nginx
+nginx4                Completed   2018-10-26 11:17:09 +0200 CEST   29d       app=nginx
+nginx5                Completed   2018-10-26 11:57:35 +0200 CEST   29d       app=nginx
+dummy-nginx-backup    Completed   2018-10-26 12:00:23 +0200 CEST   29d       app=nginx
+[ark@k8s] $ 
+```
 
 #### 1.3.3 Ark AWS Restore
 
