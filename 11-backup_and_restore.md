@@ -469,26 +469,44 @@ cloud-credentials   Opaque    1         1m
 Now change the Correct Bucket and Region name in the ark config crd and create it.
 
 ```
-[ark@k8s] $ curl -s https://raw.githubusercontent.com/heptio/ark/master/examples/aws/05-ark-backupstoragelocation.yaml -o 05-ark-backupstoragelocation.yaml
-[ark@k8s] $ sed -i '' 's/<YOUR_BUCKET>/heptio-ark-kubernetes-demo/g' 05-ark-backupstoragelocation.yaml
-[ark@k8s] $ sed -i '' 's/<YOUR_REGION>/us-east-1/g' 05-ark-backupstoragelocation.yaml
-[ark@k8s] $ cat 05-ark-backupstoragelocation.yaml
+[ark@k8s] $ cat 01.ark-config.yaml
 ---
 apiVersion: ark.heptio.com/v1
-kind: BackupStorageLocation
+kind: Config
 metadata:
-  name: default
   namespace: heptio-ark
-spec:
-  provider: aws
-  objectStorage:
-    bucket: heptio-ark-kubernetes-demo
+  name: default
+persistentVolumeProvider:
+  name: aws
+  config:
+    region: /<YOUR_REGION>
+backupStorageProvider:
+  name: aws
+  bucket: <YOUR_BUCKET>
+  config:
+    region: /<YOUR_REGION>
+[ark@k8s] $ sed -i '' 's/<YOUR_BUCKET>/heptio-ark-kubernetes-demo/g' 05-ark-backupstoragelocation.yaml
+[ark@k8s] $ sed -i '' 's/<YOUR_REGION>/us-east-1/g' 05-ark-backupstoragelocation.yaml
+[ark@k8s] $ cat 01.ark-config.yaml
+---
+apiVersion: ark.heptio.com/v1
+kind: Config
+metadata:
+  namespace: heptio-ark
+  name: default
+persistentVolumeProvider:
+  name: aws
+  config:
+    region: us-east-1
+backupStorageProvider:
+  name: aws
+  bucket: heptio-ark-kubernetes-demo
   config:
     region: us-east-1
 [ark@k8s] $ 
-[ark@k8s] $ kubectl  apply -f 05-ark-backupstoragelocation.yaml
-backupstoragelocation.ark.heptio.com "default" created
-[ark@k8s] $ kubectl get BackupStorageLocation
+[ark@k8s] $ kubectl  apply -f 01.ark-config.yaml
+config.ark.heptio.com "default" created
+[ark@k8s] $ kubectl get config
 NAME      AGE
 default   13s
 ```
@@ -588,6 +606,7 @@ Persistent Volumes: <none included>
 ```
 [ark@k8s] $ aws s3 ls s3://heptio-ark-kubernetes-demo
                            PRE dummy-nginx-backup/
+                           PRE nginx6/
 2018-10-26 10:32:53        816 05-ark-backupstoragelocation.yaml
 [ark@k8s] $ 
 ```
@@ -596,15 +615,98 @@ So far so good. We can create the backup and our backup is present in the S3 buc
 
 ```
 [ark@k8s] $ ark get backups
-NAME                  STATUS      CREATED                          EXPIRES   SELECTOR
-dummy-nginx-backup3   Deleting    2018-10-26 10:41:56 +0200 CEST   29d       app=nginx
-nginx4                Completed   2018-10-26 11:17:09 +0200 CEST   29d       app=nginx
-nginx5                Completed   2018-10-26 11:57:35 +0200 CEST   29d       app=nginx
-dummy-nginx-backup    Completed   2018-10-26 12:00:23 +0200 CEST   29d       app=nginx
+NAME                 STATUS      CREATED                          EXPIRES   SELECTOR
+dummy-nginx-backup   Completed   2018-10-26 12:26:44 +0200 CEST   29d       app=nginx
+nginx6               Completed   2018-10-26 12:21:57 +0200 CEST   29d       app=nginx
 [ark@k8s] $ 
 ```
 
 #### 1.3.3 Ark AWS Restore
+
+To restore the backup created is very easy. But lets delete the deployment created before and see if restore can put it back.
+
+Delete the deployment
+
+```
+[ark@k8s] $ kubectl get deployments,pods
+NAME                                           DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+deployment.extensions/ark                      1         1         1            1           4h
+deployment.extensions/dummy-nginx-deployment   1         1         1            1           2h
+
+NAME                                          READY     STATUS    RESTARTS   AGE
+pod/ark-5d4bcbdcb7-f62xk                      1/1       Running   0          2h
+pod/dummy-nginx-deployment-54b584546f-sk722   1/1       Running   0          2h
+
+[ark@k8s] $ 
+[ark@k8s] $ kubectl delete deployment dummy-nginx-deployment
+deployment.extensions "dummy-nginx-deployment" deleted
+[ark@k8s] $ 
+[ark@k8s] $ kubectl get deployments,pods
+NAME                        DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+deployment.extensions/ark   1         1         1            1           4h
+
+NAME                       READY     STATUS    RESTARTS   AGE
+pod/ark-5d4bcbdcb7-f62xk   1/1       Running   0          2h
+
+```
+
+Restore the deployment
+
+```
+[ark@k8s] $ ark restore create dummy-nginx-backup --from-backup dummy-nginx-backup
+Restore request "dummy-nginx-backup" submitted successfully.
+Run `ark restore describe dummy-nginx-backup` for more details.
+[ark@k8s] $ 
+[ark@k8s] $ ark restore describe dummy-nginx-backup
+Name:         dummy-nginx-backup
+Namespace:    heptio-ark
+Labels:       <none>
+Annotations:  <none>
+
+Backup:  dummy-nginx-backup
+
+Namespaces:
+  Included:  *
+  Excluded:  <none>
+
+Resources:
+  Included:        *
+  Excluded:        nodes, events, events.events.k8s.io, backups.ark.heptio.com, restores.ark.heptio.com
+  Cluster-scoped:  auto
+
+Namespace mappings:  <none>
+
+Label selector:  <none>
+
+Restore PVs:  auto
+
+Phase:  Completed
+
+Validation errors:  <none>
+
+Warnings:
+  Ark:        <none>
+  Cluster:    <none>
+  Namespaces:
+    heptio-ark:   not restored: endpoints "dummy-nginx-deployment" already exists and is different from backed up version.
+                  not restored: services "dummy-nginx-deployment" already exists and is different from backed up version.
+    kube-system:  not restored: pods "nginx-wh-repo-5cd8ffb865-7qndl" already exists and is different from backed up version.
+                  not restored: services "nginx-wh-repo" already exists and is different from backed up version.
+
+Errors:
+  Ark:        <none>
+  Cluster:    <none>
+  Namespaces: <none>
+[ark@k8s] $ 
+[ark@k8s] $ kubectl get deployments,pods
+NAME                                           DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+deployment.extensions/ark                      1         1         1            1           4h
+deployment.extensions/dummy-nginx-deployment   1         1         1            1           39s
+
+NAME                                          READY     STATUS    RESTARTS   AGE
+pod/ark-5d4bcbdcb7-f62xk                      1/1       Running   0          2h
+pod/dummy-nginx-deployment-54b584546f-sk722   1/1       Running   0          39s
+```
 
 ### 1.4 Ark GCP Setup
 
