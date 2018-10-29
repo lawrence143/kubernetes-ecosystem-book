@@ -532,6 +532,8 @@ Now time to use it.
 
 #### 1.3.2 Ark AWS Backup
 
+##### 1.3.2.1 Ark Kuberentes Resources backup
+
 To start the backup, lets create a dummy deployment and take a backup of it. 
 ```
 [ark@k8s] $ kubectl run dummy-nginx-deployment --image=nginx --port 80 --labels=app=nginx,ver=0.1 --namespace heptio-ark --expose=true --port 80
@@ -620,6 +622,242 @@ dummy-nginx-backup   Completed   2018-10-26 12:26:44 +0200 CEST   29d       app=
 nginx6               Completed   2018-10-26 12:21:57 +0200 CEST   29d       app=nginx
 [ark@k8s] $ 
 ```
+
+##### 1.3.2.2 Ark Volume Resources backup
+
+To start the volume snapshot backup, we will re-use a dummy deployment and take a backup of it.
+
+First lets create a Storage Class and then a Persistent Volume Claim. We will attach the PVC to our nginx Deployment then.
+
+Create storage class.
+
+```
+[ark@k8s] $ cat create_storage_class.yaml
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: gp2
+provisioner: kubernetes.io/aws-ebs
+parameters:
+  type: gp2
+reclaimPolicy: Retain
+mountOptions:
+  - debug
+[ark@k8s] $ 
+[ark@k8s] $ kubectl apply -f create_storage_class.yaml
+storageclass "gp2" created
+[ark@k8s] $ 
+[ark@k8s] $ kubectl get storageclasses
+NAME      PROVISIONER             AGE
+gp2       kubernetes.io/aws-ebs   83d
+```
+
+Create Persistent Volume Claim
+
+```
+[ark@k8s] $ cat pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ark-nginx-pvc
+spec:
+  storageClassName: gp2
+  resources:
+    requests:
+      storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+[ark@k8s] $ 
+[ark@k8s] $ kubectl apply -f pvc.yaml
+persistentvolumeclaim "ark-nginx-pvc" created
+[ark@k8s] $ 
+[ark@k8s] $ kubectl get pvc
+NAME            STATUS    VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+ark-nginx-pvc   Bound     pvc-9a9dd9ed-db89-11e8-b2ad-0e44a7170cb2   1Gi        RWO            gp2            30m
+[ark@k8s] $ 
+```
+
+Use Persistent Volume Claim
+```
+[ark@k8s] $ kubectl run dummy-nginx-deployment --image=nginx --port 80 --labels=app=nginx,ver=0.1 --namespace heptio-ark --expose=true --port 80 > nginx-deploy.yaml
+[ark@k8s] $ 
+```
+
+Now edit the file as below to add volume template. You can use any location to mount in container. I took /data for simplicity.
+
+```
+[ark@k8s] $ cat nginx-deploy.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: nginx
+    ver: "0.1"
+  name: dummy-nginx-deployment
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: nginx
+    ver: "0.1"
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: nginx
+    ver: "0.1"
+  name: dummy-nginx-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+      ver: "0.1"
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: nginx
+        ver: "0.1"
+    spec:
+      containers:
+      - image: nginx
+        name: dummy-nginx-deployment
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: gp2-ark
+          mountPath: /data/db
+      volumes:
+      - name: gp2-ark
+        persistentVolumeClaim:
+          claimName: ark-nginx-pvc
+
+[ark@k8s] $ kubectl apply -f nginx-deploy.yaml
+[ark@k8s] $ kubectl get deployments,pods,services,pvc
+NAME                                           DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+deployment.extensions/ark                      1         1         1            1           3d
+deployment.extensions/dummy-nginx-deployment   2         2         2            2           3d
+
+NAME                                          READY     STATUS    RESTARTS   AGE
+pod/ark-5d4bcbdcb7-f62xk                      1/1       Running   0          3d
+pod/dummy-nginx-deployment-6df6f94d65-dxv2f   1/1       Running   0          32m
+pod/dummy-nginx-deployment-6df6f94d65-mbfkm   1/1       Running   0          32m
+
+NAME                             TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
+service/dummy-nginx-deployment   ClusterIP   172.20.103.43   <none>        80/TCP    3d
+
+NAME                                  STATUS    VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+persistentvolumeclaim/ark-nginx-pvc   Bound     pvc-9a9dd9ed-db89-11e8-b2ad-0e44a7170cb2   1Gi        RWO            gp2            35m
+
+NAME         CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS    CLAIM                       STORAGECLASS   REASON    AGE
+pvc-9a9...   1Gi        RWO            Retain           Bound     heptio-ark/ark-nginx-pvc    gp2                      35m
+
+```
+
+You can also check aws details. I use awless client to check aws resources.
+
+```
+[ark@k8s] $ awless ls volumes --sort NAME
+|          ID           |                     NAME ▲                   | TYPE |   STATE   | SIZE | ENCRYPTED | CREATED  |    ZONE    |       INSTANCES       |
+|-----------------------|----------------------------------------------|------|-----------|------|-----------|----------|------------|-----------------------|
+| vol-07c23f5b83b7d20c6 | kubernetes-dynamic-pvc-9a9dd9ed-db89-.....   | gp2  | in-use    | 1G   | false     | 38 mins  | us-east-1c | [i-06ca939c85e86c353] |
+```
+
+Dummy resource and persistent volume are created is created, so lets take a backup.
+But before running ark command, lets check if there is something in my bucket.
+
+```
+[ark@k8s] $ aws s3 ls s3://heptio-ark-kubernetes-demo
+[ark@k8s] $ 
+```
+There are no resources in the bucket. Lets create a backup.
+
+```
+[ark@k8s] $ ark create backup dummy-nginx-backup --selector app=nginx
+Backup request "dummy-nginx-backup" submitted successfully.
+Run `ark backup describe dummy-nginx-backup` for more details.
+
+[ark@k8s] $  ark create backup dummy-nginx-backup-1 --selector app=nginx --snapshot-volumes=true
+Backup request "dummy-nginx-backup-1" submitted successfully.
+Run `ark backup describe dummy-nginx-backup-1` for more details.
+[ark@k8s] $ 
+[ark@k8s] $ ark backup describe dummy-nginx-backup-1
+Name:         dummy-nginx-backup
+ark backup describe dummy-nginx-backup-1
+Name:         dummy-nginx-backup-1
+Namespace:    heptio-ark
+Labels:       <none>
+Annotations:  <none>
+
+Phase:  Completed
+
+Namespaces:
+  Included:  *
+  Excluded:  <none>
+
+Resources:
+  Included:        *
+  Excluded:        <none>
+  Cluster-scoped:  auto
+
+Label selector:  app=nginx
+
+Snapshot PVs:  true
+
+TTL:  720h0m0s
+
+Hooks:  <none>
+
+Backup Format Version:  1
+
+Started:    2018-10-29 15:53:07 +0100 CET
+Completed:  2018-10-29 15:53:15 +0100 CET
+
+Expiration:  2018-11-28 15:53:07 +0100 CET
+
+Validation errors:  <none>
+
+Persistent Volumes:
+  pvc-9a9dd9ed-db89-11e8-b2ad-0e44a7170cb2:
+    Snapshot ID:        snap-084a86e98cb6ea6bd
+    Type:               gp2
+    Availability Zone:  us-east-1c
+    IOPS:               <N/A>
+```
+
+```
+[ark@k8s] $ aws s3 ls s3://heptio-ark-kubernetes-demo
+                           PRE dummy-nginx-backup-1/
+                           PRE dummy-nginx-backup/
+                           PRE nginx6/
+2018-10-26 10:32:53        816 05-ark-backupstoragelocation.yaml
+[ark@k8s] $ 
+```
+
+Check AWS for snapshots.
+```
+[ark@k8s] $ awless ls snapshots
+|          ID ▲          |        VOLUME         | ENCRYPTED |    OWNER     |   STATE   | PROGRESS | CREATED | SIZE |
+|------------------------|-----------------------|-----------|--------------|-----------|----------|---------|------|
+| snap-084a86e98cb6ea6bd | vol-07c23f5b83b7d20c6 | false     | 136335740207 | completed | 100%     | 37 mins | 1G   |
+```
+
+So far so good. We can create the backup and our backup is present in the S3 bucket. We can list the backup as below.
+
+```
+[ark@k8s] $ ark get backups
+NAME                   STATUS      CREATED                          EXPIRES   SELECTOR
+dummy-nginx-backup     Completed   2018-10-26 12:26:44 +0200 CEST   26d       app=nginx
+dummy-nginx-backup-1   Completed   2018-10-29 15:53:07 +0100 CET    29d       app=nginx
+nginx6                 Completed   2018-10-26 12:21:57 +0200 CEST   26d       app=nginx
+[ark@k8s] $ 
+```
+
 
 #### 1.3.3 Ark AWS Restore
 
