@@ -773,6 +773,9 @@ But before running ark command, lets check if there is something in my bucket.
 
 ```
 [ark@k8s] $ aws s3 ls s3://heptio-ark-kubernetes-demo
+                           PRE dummy-nginx-backup/
+                           PRE nginx6/
+2018-10-26 10:32:53        816 05-ark-backupstoragelocation.yaml
 [ark@k8s] $ 
 ```
 There are no resources in the bucket. Lets create a backup.
