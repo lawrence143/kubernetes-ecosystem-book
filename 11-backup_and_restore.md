@@ -738,7 +738,7 @@ spec:
           claimName: ark-nginx-pvc
 
 [ark@k8s] $ kubectl apply -f nginx-deploy.yaml
-[ark@k8s] $ kubectl get deployments,pods,services,pvc
+[ark@k8s] $ kubectl get deployments,pods,services,pvc,pv
 NAME                                           DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
 deployment.extensions/ark                      1         1         1            1           3d
 deployment.extensions/dummy-nginx-deployment   2         2         2            2           3d
