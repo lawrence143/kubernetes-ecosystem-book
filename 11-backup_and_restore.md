@@ -864,7 +864,9 @@ nginx6                 Completed   2018-10-26 12:21:57 +0200 CEST   26d       ap
 
 #### 1.3.3 Ark AWS Restore
 
-To restore the backup created is very easy. But lets delete the deployment created before and see if restore can put it back.
+##### 1.3.3.1 Ark Resources restore
+
+To restore from the backup created is very easy. But lets delete the deployment created before and see if restore can put it back.
 
 Delete the deployment
 
@@ -949,6 +951,109 @@ pod/ark-5d4bcbdcb7-f62xk                      1/1       Running   0          2h
 pod/dummy-nginx-deployment-54b584546f-sk722   1/1       Running   0          39s
 ```
 
+##### 1.3.3.2 Ark Persistent Volume restore
+
+To restore from the backup created is very easy. But lets delete the deployment created before and see if restore can put it back.
+
+Delete the deployment, persistent volume and persistent volume claims.
+
+```
+[ark@k8s] $ kubectl delete -f nginx-deploy.yaml
+service "dummy-nginx-deployment" deleted
+deployment.extensions "dummy-nginx-deployment" deleted
+[ark@k8s] $ 
+[ark@k8s] $ kubectl delete pvc ark-nginx-pvc
+persistentvolumeclaim "ark-nginx-pvc" deleted
+[ark@k8s] $ 
+[ark@k8s] $ kubectl delete pvc ark-nginx-pvc
+[ark@k8s] $ 
+[ark@k8s] $ delete pv pvc-9a9dd9ed-db89-11e8-b2ad-0e44a7170cb2
+persistentvolume "pvc-9a9dd9ed-db89-11e8-b2ad-0e44a7170cb2" deleted
+[ark@k8s] $ 
+[ark@k8s] $ kubectl get pods
+NAME                   READY     STATUS    RESTARTS   AGE
+ark-5d4bcbdcb7-f62xk   1/1       Running   0          4d
+[ark@k8s] $ 
+[ark@k8s] $ kubectl get pvc
+No resources found.
+[ark@k8s] $ 
+[ark@k8s] $ kubectl get pv
+NAME                                       CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS    CLAIM                                                       STORAGECLASS   REASON    AGE
+pvc-81a6e506-9a1b-11e8-95fa-12e0cecfa7b2   1Gi        RWO            Retain           Bound     kube-system/elasticsearch-logging-elasticsearch-logging-0   gp2                      84d
+pvc-8dccbbca-9a1b-11e8-95fa-12e0cecfa7b2   1Gi        RWO            Retain           Bound     kube-system/elasticsearch-logging-elasticsearch-logging-1   gp2                      84d
+[ark@k8s] $ 
+```
+
+Restore the deployment
+
+```
+[ark@k8s] $ ark restore create dummy-nginx-backup-2 --from-backup dummy-nginx-backup-1
+Restore request "dummy-nginx-backup-2" submitted successfully.
+Run `ark restore describe dummy-nginx-backup-2` for more details.
+[ark@k8s] $ ark restore describe dummy-nginx-backup-2
+Name:         dummy-nginx-backup-2
+Namespace:    heptio-ark
+Labels:       <none>
+Annotations:  <none>
+
+Backup:  dummy-nginx-backup-1
+
+Namespaces:
+  Included:  *
+  Excluded:  <none>
+
+Resources:
+  Included:        *
+  Excluded:        nodes, events, events.events.k8s.io, backups.ark.heptio.com, restores.ark.heptio.com
+  Cluster-scoped:  auto
+
+Namespace mappings:  <none>
+
+Label selector:  <none>
+
+Restore PVs:  auto
+
+Phase:  Completed
+
+Validation errors:  <none>
+
+Warnings:
+  Ark:        <none>
+  Cluster:    <none>
+  Namespaces:
+    heptio-ark:   not restored: replicasets.apps "dummy-nginx-deployment-6df6f94d65" already exists and is different from backed up version.
+    kube-system:  not restored: pods "nginx-wh-repo-5cd8ffb865-7qndl" already exists and is different from backed up version.
+                  not restored: services "nginx-wh-repo" already exists and is different from backed up version.
+
+Errors:
+  Ark:        <none>
+  Cluster:    <none>
+  Namespaces: <none>
+
+```
+
+Check the resources after restoring.
+
+```
+[ark@k8s] $ kubectl get pods,svc,pvc,pv
+NAME                                          READY     STATUS    RESTARTS   AGE
+pod/ark-5d4bcbdcb7-f62xk                      1/1       Running   0          4d
+pod/dummy-nginx-deployment-6df6f94d65-dxv2f   1/1       Running   0          11m
+pod/dummy-nginx-deployment-6df6f94d65-mbfkm   1/1       Running   0          11m
+
+NAME                             TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE
+service/dummy-nginx-deployment   ClusterIP   172.20.18.19   <none>        80/TCP    11m
+
+NAME                                  STATUS    VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+persistentvolumeclaim/ark-nginx-pvc   Bound     pvc-9a9dd9ed-db89-11e8-b2ad-0e44a7170cb2   1Gi        RWO            gp2            11m
+
+NAME                                                        CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS    CLAIM                                                       STORAGECLASS   REASON    AGE
+persistentvolume/pvc-81a6e506-9a1b-11e8-95fa-12e0cecfa7b2   1Gi        RWO            Retain           Bound     kube-system/elasticsearch-logging-elasticsearch-logging-0   gp2                      84d
+persistentvolume/pvc-8dccbbca-9a1b-11e8-95fa-12e0cecfa7b2   1Gi        RWO            Retain           Bound     kube-system/elasticsearch-logging-elasticsearch-logging-1   gp2                      84d
+persistentvolume/pvc-9a9dd9ed-db89-11e8-b2ad-0e44a7170cb2   1Gi        RWO            Retain           Bound     heptio-ark/ark-nginx-pvc                                                             11m
+[ark@k8s] $ 
+```
+
 ### 1.4 Ark GCP Setup
 
 #### 1.4.1 Ark GCP Configuration
@@ -976,17 +1081,6 @@ For storing data in AWS S3 bucket.
 5. Change bucket name & aws region in file `00-ark-config.yaml`.
 6. Change AWS account number & username as your aws account no. and  username in file `02.deployment-kube2iam.yaml`.
 
-**Commands**
-
-```
-[slamba ◯  WHM0005395  01.Deployment ] ☘   kubectl apply -f crd/01.ark_pre_requisites.yaml
-[slamba ◯  WHM0005395  01.Deployment ] ☘   kubectl apply -f aws/.
-[slamba ◯  WHM0005395  01.Deployment ] ☘   kubectl apply -f kubernetes-resources/nginx_deployment.yaml
-[slamba ◯  WHM0005395  01.Deployment ] ☘   ark backup create nginx-backup --selector app=nginx
-[slamba ◯  WHM0005395  01.Deployment ] ☘   kubectl delete -f kubernetes-resources/nginx_deployment.yaml
-[slamba ◯  WHM0005395  01.Deployment ] ☘   ark restore create nginx-backup --from-backup nginx-backup
-
-```
 
 ### 1.3 Ark - How to restore from a backup
 
