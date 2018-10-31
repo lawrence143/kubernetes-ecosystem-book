@@ -1221,22 +1221,6 @@ persistentvolume/pvc-9a9dd9ed-db89-11e8-b2ad-0e44a7170cb2   1Gi        RWO      
 
 #### 1.5.3 Ark Azure Restore
 
-*Pre-requisites*
-
-For storing data in AWS S3 bucket.
-
-1. Create S3 bucket in specific region
-2. Create S3 user for bucket that user should have S3 bucket full permission.
-3. Create Access key & secret key for that user.
-4. Change value of **Access_key** and **Secret_key** in file `00.secret.yaml` in aws.
-5. Change bucket name & aws region in file `00-ark-config.yaml`.
-6. Change AWS account number & username as your aws account no. and  username in file `02.deployment-kube2iam.yaml`.
-
-
-### 1.3 Ark - How to restore from a backup
-
-## 2. etcd
-
 
 [1]: https://docs.portworx.com/scheduler/kubernetes/ark.html
 [2]: https://github.com/StackPointCloud/ark-plugin-digitalocean
