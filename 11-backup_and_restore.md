@@ -441,7 +441,7 @@ Create the aws specfic credentials file. We will create Kubernetes secret resour
 where the access key id and secret are the values returned from the step 3.
 
 
-##### 1.3.1.2 Create Credentials and configuration
+##### 1.3.1.3 Create Credentials and configuration
 
 As we already created the CRD's, last step we need to do is to create the secret and then configure AWS Deployment file with correct details
 
@@ -529,6 +529,110 @@ ark-5d4bcbdcb7-jvnr2   1/1       Running   0          2m
 
 And thats it, our Ark configuration is done.
 Now time to use it.
+
+##### 1.3.1.3 Create Roles for Kube2IAM Deployment
+
+[Kube2iam][4] is a Kubernetes application that allows managing AWS IAM permissions for pod via annotations rather than operating on API keys.
+
+To use this backup policy, please install [Kube2iam][4] in your cluster first. Access to the AWS API will be brokered through kube2iam. 
+
+All traffic from pods destined for the AWS API will be redirected to kube2iam. Based on annotations in the pod configurations, kube2iam will make a call to the AWS API to retrieve temporary credentials matching the specified role in the annotation and return these to the caller. All other AWS API calls will be proxied through kube2iam to ensure the principle of least privilege is enforced and policy cannot be bypassed.
+
+These are steps, we need to take before running kube2iam Deployment
+
+1. Create a Trust Policy document to allow the role being used for EC2 management & assume kube2iam role:
+
+```
+[ark@k8s] $ cat heptio-ark-trust-policy.json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "ec2.amazonaws.com"
+            },
+            "Action": "sts:AssumeRole"
+        },
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::<AWS_ACCOUNT_ID>:role/<ROLE_CREATED_WHEN_INITIALIZING_KUBE2IAM>"
+            },
+            "Action": "sts:AssumeRole"
+        }
+    ]
+}
+[ark@k8s] $ 
+```
+
+2. Create IAM Role.
+
+```
+[ark@k8s] $ aws iam create-role --role-name heptio-ark --assume-role-policy-document file://./heptio-ark-trust-policy.json
+[ark@k8s] $ 
+```
+
+3. Create Policy and attach to heptio-ark role.
+
+The ark user needs permissions to get, put, delete, abort and list multipart-uploads on S3.
+And also to describe,create tags,volumes and snapshots and to delete snapshots on EC2.
+
+The policy document will like below.
+
+```
+[ark@k8s] $ cat heptio-ark-role-policy.json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ec2:DescribeVolumes",
+                "ec2:DescribeSnapshots",
+                "ec2:CreateTags",
+                "ec2:CreateVolume",
+                "ec2:CreateSnapshot",
+                "ec2:DeleteSnapshot"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:GetObject",
+                "s3:DeleteObject",
+                "s3:PutObject",
+                "s3:AbortMultipartUpload",
+                "s3:ListMultipartUploadParts"
+            ],
+            "Resource": [
+                "arn:aws:s3:::heptio-ark-kubernetes-demo/*"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:ListBucket"
+            ],
+            "Resource": [
+                "arn:aws:s3:::heptio-ark-kubernetes-demo"
+            ]
+        }
+    ]
+}
+```
+
+
+Make sure the arn for s3 bucket i.e. **arn:aws:s3:::heptio-ark-kubernetes-demo** is correct.
+**heptio-ark-kubernetes-demo** is S3 bucket, we created in previous section step-1.
+
+We now need to apply this policy to our user.
+
+```
+[ark@k8s] $ aws iam put-user-policy --role-name heptio-ark --policy-name heptio-ark-role --policy-document file://heptio-ark-role-policy.json
+[ark@k8s] $ 
+```
 
 #### 1.3.2 Ark AWS Backup
 
@@ -861,10 +965,55 @@ nginx6                 Completed   2018-10-26 12:21:57 +0200 CEST   26d       ap
 [ark@k8s] $ 
 ```
 
+##### 1.3.2.3 Ark Resources backup using kube2iam
+
+In case of kube2iam, we need to install a new deployment for ark as given below.
+
+```
+[ark@k8s] $ cat ark-deployment-kube2iam.yaml
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  namespace: heptio-ark
+  name: ark
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        component: ark
+      annotations:
+        iam.amazonaws.com/role: arn:aws:iam::<AWS-CUST-ID>:role/<Role-Created-Above-i.e.heptio-ark>
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8085"
+        prometheus.io/path: "/metrics"
+    spec:
+      restartPolicy: Always
+      serviceAccountName: ark
+      containers:
+        - name: ark
+          image: gcr.io/heptio-images/ark:latest
+          ports:
+            - name: metrics
+              containerPort: 8085
+          command:
+            - /ark
+          args:
+            - server
+          volumeMounts:
+            - name: plugins
+              mountPath: /plugins
+      volumes:
+        - name: plugins
+          emptyDir: {}
+```
+
+Once deployed, the backup strategy will work the same way as in step 1 and 2.
 
 #### 1.3.3 Ark AWS Restore
 
-##### 1.3.3.1 Ark Resources restore
+##### 1.3.3.1 Ark Resources/Kube2iam restore
 
 To restore from the backup created is very easy. But lets delete the deployment created before and see if restore can put it back.
 
@@ -1053,6 +1202,8 @@ persistentvolume/pvc-8dccbbca-9a1b-11e8-95fa-12e0cecfa7b2   1Gi        RWO      
 persistentvolume/pvc-9a9dd9ed-db89-11e8-b2ad-0e44a7170cb2   1Gi        RWO            Retain           Bound     heptio-ark/ark-nginx-pvc                                                             11m
 [ark@k8s] $ 
 ```
+
+
 
 ### 1.4 Ark GCP Setup
 
